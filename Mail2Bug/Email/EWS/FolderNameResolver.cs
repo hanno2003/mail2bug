@@ -14,7 +14,9 @@ namespace Mail2Bug.Email.EWS
         {
             Logger.DebugFormat("Looking for folder named '{0}'", folderName);
             // Look for the folder under the mailbox root
-            var rootFolder = Folder.Bind(service, WellKnownFolderName.MsgFolderRoot);
+            //var rootFolder = Folder.Bind(service, WellKnownFolderName.MsgFolderRoot);
+            FolderId SharedMailbox = new FolderId(WellKnownFolderName.Inbox, "mail2bug@remira.de");
+            var rootFolder = Folder.Bind(service, SharedMailbox, PropertySet.IdOnly);
 
             // Folder name should be equal to 'folderName'
             var folderFilter = new SearchFilter.IsEqualTo(FolderSchema.DisplayName, folderName);

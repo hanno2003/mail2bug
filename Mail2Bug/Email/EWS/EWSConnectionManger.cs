@@ -22,6 +22,7 @@ namespace Mail2Bug.Email.EWS
             public string EmailAddress;
             public string UserName;
             public string Password;
+            public string Url;
         }
 
         public struct EWSConnection
@@ -82,20 +83,28 @@ namespace Mail2Bug.Email.EWS
         static private EWSConnection ConnectToEWS(Credentials credentials, bool useConversationGuidOnly)
         {
             Logger.DebugFormat("Initializing FolderMailboxManager for email adderss {0}", credentials.EmailAddress);
-            var exchangeService = new ExchangeService(ExchangeVersion.Exchange2010_SP1)
+            var exchangeService = new ExchangeService(ExchangeVersion.Exchange2013_SP1)
             {
                 Credentials = new WebCredentials(credentials.UserName, credentials.Password),
                 Timeout = 60000
             };
 
-            exchangeService.AutodiscoverUrl(
-                credentials.EmailAddress,
-                x =>
-                {
-                    Logger.DebugFormat("Following redirection for EWS autodiscover: {0}", x);
-                    return true;
-                }
+            if (string.IsNullOrEmpty(credentials.Url))
+            {
+                exchangeService.Url = new Uri("https://outlook.office365.com/EWS/Exchange.asmx");                 
+
+            } else
+            {
+                exchangeService.AutodiscoverUrl(
+                    credentials.EmailAddress,
+                    x =>
+                    {
+                        Logger.DebugFormat("Following redirection for EWS autodiscover: {0}", x);
+                        return true;
+                    }
                 );
+            }
+
 
             Logger.DebugFormat("Service URL: {0}", exchangeService.Url);
 
